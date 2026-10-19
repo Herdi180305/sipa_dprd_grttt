@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tanda Terima - {{ surat.kode_tracking }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: white; font-family: 'Times New Roman', serif; }
+        .receipt-card { border: 2px solid #000; padding: 30px; margin-top: 20px; }
+        .line { border-bottom: 2px solid #000; margin: 15px 0; }
+        .tracking-box { border: 1px dashed #000; padding: 10px; background: #f9f9f9; }
+        
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; }
+            .receipt-card { border: 1px solid #000; }
+        }
+    </style>
+</head>
+<body onload="window.print()"> <!-- Otomatis memunculkan dialog print saat dibuka -->
+    <div class="container">
+        <div class="no-print mt-3 mb-3">
+            <button onclick="window.print()" class="btn btn-primary">Cetak Ulang</button>
+            <a href="{% url 'detail_surat' surat.uuid %}" class="btn btn-secondary">Kembali</a>
+        </div>
+
+        <div class="receipt-card mx-auto" style="max-width: 800px;">
+            <div class="text-center">
+                <h4 class="mb-0">DEWAN PERWAKILAN RAKYAT DAERAH</h4>
+                <h4 class="fw-bold">KABUPATEN GARUT</h4>
+                <p class="mb-0 small">Jl. Patriot No. 2, Suka Galih,Tarogong Kidul, Garut 44151</p>
+                <div class="line"></div>
+                <h5>TANDA TERIMA SURAT PERMOHONAN AUDIENSI</h5>
+            </div>
+
+            <div class="mt-4">
+                <table class="table table-borderless">
+                    <tr>
+                        <td width="30%">Nama Pemohon</td>
+                        <td>: <strong>{{ surat.nama_pemohon }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Nomor Surat</td>
+                        <td>: {{ surat.nomor_surat_pemohon|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Perihal</td>
+                        <td>: {{ surat.perihal }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tanggal Masuk</td>
+                        <td>: {{ surat.created_at|date:"d F Y" }} </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="tracking-box text-center mt-3">
+                <p class="mb-1">Gunakan kode di bawah ini untuk cek status audiensi Anda di website:</p>
+                <h3 class="fw-bold text-primary mb-0">{{ surat.kode_tracking }}</h3>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-7"></div>
+                <div class="col-5 text-center">
+                    <p>Garut, {{ surat.created_at|date:"d F Y" }}</p>
+                    <p>Petugas Tata Usaha,</p>
+                    <br><br>
+                    <p class="fw-bold">({{ user.get_full_name|default:user.username }})</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

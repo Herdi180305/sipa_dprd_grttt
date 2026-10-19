@@ -1,0 +1,100 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Overview - E-AUDIENSI{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 border-start border-primary border-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary">
+                    <i class='bx bxs-briefcase fs-3'></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Total Berkas Saya</h6>
+                    <h4 class="mb-0 fw-bold">{{ total_surat }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 border-start border-warning border-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning">
+                    <i class='bx bxs-bell-ring fs-3'></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Perlu Tindakan Anda</h6>
+                    <h4 class="mb-0 fw-bold">{{ perlu_tindakan }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 border-start border-success border-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success">
+                    <i class='bx bxs-check-circle fs-3'></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Sudah Selesai</h6>
+                    <h4 class="mb-0 fw-bold">{{ surat_selesai }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-7">
+        <h5 class="fw-bold mb-3">Aktivitas Terbaru</h5>
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <table class="table mb-0 align-middle small">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Kode</th>
+                        <th>Pemohon</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for surat in aktivitas_terbaru %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-primary">{{ surat.kode_tracking }}</td>
+                        <td>{{ surat.nama_pemohon }}</td>
+                        <td><span class="badge rounded-pill bg-light text-dark border">{{ surat.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="text-center py-4 text-muted">Belum ada data.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <h5 class="fw-bold mb-3">Jadwal Audiensi Terdekat</h5>
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+            {% for jadwal in jadwal_audiensi %}
+            <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-3 hover-bg-light border-bottom pb-3">
+                <div class="text-center bg-info bg-opacity-10 p-2 rounded-3 text-info" style="min-width: 65px;">
+                    <span class="d-block fw-bold fs-5">{{ jadwal.tanggal_audiensi|date:"d" }}</span>
+                    <span class="small">{{ jadwal.tanggal_audiensi|date:"M" }}</span>
+                </div>
+                <div>
+                    <h6 class="mb-1 fw-bold text-dark small">{{ jadwal.nama_pemohon }}</h6>
+                    <p class="mb-0 text-muted extra-small">
+                        <i class='bx bx-time me-1'></i>{{ jadwal.waktu_audiensi }} WIB<br>
+                        <i class='bx bx-map me-1'></i>{{ jadwal.lokasi_audiensi }}
+                    </p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted text-center py-3 extra-small">Belum ada jadwal yang ditetapkan.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

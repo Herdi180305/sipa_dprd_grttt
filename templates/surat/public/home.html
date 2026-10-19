@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lacak Audiensi | DPRD Kabupaten Garut</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #f0f9ff; 
+            font-family: 'Poppins', sans-serif; 
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .search-card { 
+            border: none; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05); 
+            background: white;
+            width: 100%;
+            max-width: 550px;
+            padding: 40px;
+        }
+        .hero-text h2 { color: #0369a1; font-weight: 700; }
+        .hero-text p { color: #64748b; font-size: 0.95rem; }
+        
+        .input-group-custom {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 8px 8px 8px 18px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .input-group-custom:focus-within {
+            border-color: #0ea5e9;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+        .input-group-custom input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .input-group-custom input::placeholder {
+            font-weight: 400;
+            color: #94a3b8;
+        }
+        .btn-search {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-search:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+        }
+        .info-tag {
+            background: #f0f9ff;
+            color: #0ea5e9;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container d-flex justify-content-center px-3">
+        <div class="card search-card text-center">
+            <div class="hero-text mb-4">
+                <span class="info-tag text-uppercase">Public Tracking System</span>
+                <h2>Lacak Status Audiensi</h2>
+                <p>Masukkan kode tracking unik Anda (misal: <strong>HGR-001</strong>) untuk melihat progres permohonan secara real-time.</p>
+            </div>
+
+            <form method="post" action="{% url 'home' %}">
+                {% csrf_token %}
+                <div class="input-group-custom">
+                    <i class='bx bx-search fs-4 text-muted me-2'></i>
+                    <input type="text" name="kode_tracking" placeholder="Masukkan Kode Tracking..." required>
+                    <button type="submit" class="btn btn-search">Cek Status</button>
+                </div>
+            </form>
+
+            <div class="mt-4 pt-4 border-top">
+                <p class="text-muted small mb-0">
+                    Belum punya kode? Pastikan Anda sudah memberikan surat permohonan ke Tata Usaha DPRD Kab. Garut
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Audiensi | DPRD Kabupaten Garut</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #f0f9ff; font-family: 'Poppins', sans-serif; min-height: 100vh; display: flex; align-items: center; }
+        .result-card { border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); background: white; width: 100%; max-width: 700px; }
+        
+        /* Timeline Styling */
+        .timeline { position: relative; padding: 20px 0; list-style: none; }
+        .timeline::before { content: ""; position: absolute; top: 0; bottom: 0; left: 31px; width: 2px; background: #e2e8f0; }
+        .timeline-item { position: relative; margin-bottom: 25px; padding-left: 60px; }
+        .timeline-item::before { 
+            content: ""; position: absolute; left: 22px; top: 0; width: 20px; height: 20px; 
+            border-radius: 50%; background: #cbd5e1; border: 4px solid white; z-index: 1; 
+        }
+        .timeline-item.active::before { background: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2); }
+        .timeline-item.completed::before { background: #10b981; }
+        
+        .status-badge { font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; }
+        .bg-light-blue { background-color: #f0f9ff; color: #0ea5e9; }
+    </style>
+</head>
+<body>
+
+<div class="container d-flex justify-content-center py-5">
+    <div class="card result-card p-4 p-md-5">
+        <div class="text-center mb-5">
+            <span class="status-badge bg-light-blue mb-2 d-inline-block">Tracking ID: {{ surat.kode_tracking }}</span>
+            <h2 class="fw-bold text-dark">Status Permohonan Anda</h2>
+            <p class="text-muted">Data diperbarui secara real-time oleh sistem internal</p>
+        </div>
+
+        <div class="row mb-5 text-center text-md-start">
+            <div class="col-md-6 mb-3">
+                <small class="text-uppercase text-muted fw-bold">Pemohon/Instansi</small>
+                <p class="fw-semibold mb-0">{{ surat.nama_pemohon }}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <small class="text-uppercase text-muted fw-bold">Perihal</small>
+                <p class="fw-semibold mb-0">{{ surat.perihal }}</p>
+            </div>
+        </div>
+
+        <div class="timeline mb-4">
+            <div class="timeline-item {% if surat.status == 'REGISTRASI' %}active{% else %}completed{% endif %}">
+                <h6 class="fw-bold mb-0">Registrasi & Penelaahan TU</h6>
+                <small class="text-muted">Surat telah diterima dan sedang diproses secara administratif</small>
+            </div>
+
+            <div class="timeline-item {% if surat.status == 'DI_PIMPINAN' %}active{% elif surat.status == 'DI_KOMISI' or surat.status == 'SELESAI' %}completed{% endif %}">
+                <h6 class="fw-bold mb-0">Disposisi Pimpinan</h6>
+                <small class="text-muted">Surat sedang ditelaah oleh Pimpinan/Sekwan untuk instruksi selanjutnya.</small>
+            </div>
+
+            <div class="timeline-item {% if surat.status == 'DI_KOMISI' %}active{% elif surat.status == 'SELESAI' %}completed{% endif %}">
+                <h6 class="fw-bold mb-0">Koordinasi Jadwal Komisi</h6>
+                <small class="text-muted">Bagian Komisi sedang mencocokkan jadwal audiensi.</small>
+            </div>
+
+            <div class="timeline-item {% if surat.status == 'SELESAI' %}active{% endif %}">
+                <h6 class="fw-bold mb-0">Surat Balasan Siap</h6>
+                <small class="text-muted">Proses selesai. Silakan cek informasi jadwal atau ambil surat di kantor.</small>
+            </div>
+        </div>
+
+        {% if surat.tanggal_audiensi %}
+        <div class="alert alert-success border-0 rounded-4 p-3 d-flex align-items-center mb-4">
+            <i class='bx bxs-calendar-check fs-2 me-3'></i>
+            <div>
+                <small class="d-block fw-bold text-uppercase">Jadwal Audiensi Disetujui:</small>
+                <span class="fs-5 fw-bold">{{ surat.tanggal_audiensi|date:"d F Y" }} {{ surat.waktu_audiensi|date:"H:i" }} WIB</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-2">
+            <a href="{% url 'home' %}" class="btn btn-light rounded-3 px-4 fw-semibold text-muted">
+                <i class='bx bx-arrow-back me-1'></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

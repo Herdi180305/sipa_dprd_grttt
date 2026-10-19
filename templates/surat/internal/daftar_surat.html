@@ -1,0 +1,94 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Daftar Surat Audiensi - E-AUDIENSI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold text-secondary">Daftar Permohonan Audiensi</h4>
+    {% if user.profile.role == 'TU' %}
+    <a href="{% url 'input_surat' %}" class="btn btn-primary rounded-3">
+        <i class='bx bx-plus'></i> Registrasi Surat Baru
+    </a>
+    {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Kode & Pemohon</th>
+                    <th>Nomor Surat</th>
+                    <th>Status</th>
+                    <th>Tanggal Masuk</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for surat in semua_surat %}
+                <tr {% if user.profile.role != 'TU' and surat.status == user.profile.role_status_matching %}
+                    class="table-primary fw-bold" style="border-left: 5px solid #0ea5e9;" {% endif %}>
+                    <td class="ps-4">
+                        <div class="fw-bold text-primary">{{ surat.kode_tracking }}</div>
+                        <div class="small text-dark">{{ surat.nama_pemohon }}</div>
+                    </td>
+                    <td>{{ surat.nomor_surat_pemohon|default:"-" }}</td>
+                    <td>
+                        {% if user.profile.role != 'TU' and surat.status == user.profile.role_status_matching %}
+                        <span class="badge rounded-pill bg-primary shadow-sm">
+                            <i class='bx bxs-bell-ring me-1'></i> Perlu Tindakan
+                        </span>
+                        {% else %}
+                        {% if surat.status == 'REGISTRASI' %}
+                        <span class="badge rounded-pill bg-secondary text-white">Di Tata Usaha</span>
+                        {% elif surat.status == 'DI_PIMPINAN' %}
+                        <span class="badge rounded-pill bg-danger text-white">Di Pimpinan</span>
+                        {% elif surat.status == 'DI_SEKWAN' %}
+                        <span class="badge rounded-pill bg-warning text-dark">Di Sekwan</span>
+                        {% elif surat.status == 'DI_KABAG' %}
+                        <span class="badge rounded-pill bg-info text-dark">Di Kabag Umum</span>
+                        {% elif surat.status == 'VALIDASI_TU' %}
+                        <span class="badge rounded-pill bg-primary text-white">Validasi TU</span>
+                        {% elif surat.status == 'DI_KOMISI' %}
+                        <span class="badge rounded-pill bg-dark text-white">Di Komisi/Notulen</span>
+                        {% elif surat.status == 'SELESAI' %}
+                        <span class="badge rounded-pill bg-success text-white">Selesai/Dijadwalkan</span>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>{{ surat.created_at|date:"d M Y, H:i" }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{% url 'detail_surat' surat.uuid %}" class="btn btn-sm btn-light text-primary"
+                                title="Detail">
+                                <i class='bx bx-show fs-5'></i>
+                            </a>
+
+                            {% if user.profile.role == 'TU' %}
+                            <a href="{% url 'edit_surat' surat.uuid %}" class="btn btn-sm btn-light text-warning"
+                                title="Edit">
+                                <i class='bx bx-edit fs-5'></i>
+                            </a>
+
+                            <a href="{% url 'hapus_surat' surat.uuid %}" class="btn btn-sm btn-light text-danger"
+                                onclick="return confirm('Apakah Anda yakin ingin menghapus surat ini? data akan tetap tersimpan di arsip pusat.')"
+                                title="Hapus">
+                                <i class='bx bx-trash fs-5'></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class='bx bx-envelope-open fs-1 d-block mb-2'></i>
+                        Belum ada data surat masuk.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

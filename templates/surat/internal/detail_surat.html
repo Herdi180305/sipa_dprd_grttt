@@ -1,0 +1,262 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Detail Surat - {{ surat.kode_tracking }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Kolom Kiri: Informasi Surat -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary">Detail Permohonan Audiensi</h5>
+                <span class="badge bg-info text-dark">{{ surat.get_status_display }}</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Kode Tracking</div>
+                    <div class="col-sm-8 fw-bold text-primary">{{ surat.kode_tracking }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Nama Pemohon</div>
+                    <div class="col-sm-8 fw-semibold">{{ surat.nama_pemohon }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Nomor Surat</div>
+                    <div class="col-sm-8">{{ surat.nomor_surat_pemohon|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Tanggal Surat</div>
+                    <div class="col-sm-8">{{ surat.tanggal_surat_pemohon|date:"d M Y"|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Perihal</div>
+                    <div class="col-sm-8 text-secondary">{{ surat.perihal }}</div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Waktu Registrasi</div>
+                    <div class="col-sm-8 small text-muted">{{ surat.created_at|date:"d F Y, H:i" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Request Tanggal Audiensi</div>
+                    <div class="col-sm-8 small text-muted">{{ surat.request_tanggal|date:"d F Y"|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian Riwayat Disposisi (Placeholder) -->
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="fw-bold mb-0"><i class='bx bx-history me-2'></i>Riwayat Perjalanan Surat</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="timeline">
+                    {% for item in surat.riwayat_disposisi.all|dictsort:"created_at" %}
+                    <div class="d-flex mb-4 position-relative">
+                        {% if not forloop.last %}
+                        <div class="position-absolute border-start h-100"
+                            style="left: 20px; top: 40px; border-color: #e2e8f0 !important;"></div>
+                        {% endif %}
+
+                        <div class="me-3 position-relative" style="z-index: 2;">
+                            <img src="https://ui-avatars.com/api/?name={{ item.pengirim.username }}&background=0ea5e9&color=fff"
+                                class="rounded-circle border border-2 border-white shadow-sm" width="40">
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-dark">
+                                        {{ item.pengirim.get_full_name|default:item.pengirim.username }}
+                                    </h6>
+                                    <span class="badge bg-light text-primary border small text-uppercase"
+                                        style="font-size: 0.65rem;">
+                                        {{ item.pengirim.profile.get_role_display }}
+                                    </span>
+                                </div>
+                                <small class="text-muted" style="font-size: 0.75rem;">
+                                    {{ item.created_at|date:"d M Y, H:i" }}
+                                </small>
+                            </div>
+
+                            <div class="mt-2 p-3 bg-light rounded-3 shadow-sm border-start border-primary border-4">
+                                <p class="mb-1 small text-dark fw-medium">Catatan / Instruksi:</p>
+                                <p class="mb-0 text-secondary small">"{{ item.catatan }}"</p>
+                            </div>
+
+                            <div class="mt-2 text-end">
+                                <span class="text-muted small" style="font-size: 0.7rem;">
+                                    Status Berubah Ke: <span class="text-primary fw-semibold">
+                                        {{ item.status_saat_itu }}
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <i class='bx bx-dots-horizontal-rounded fs-1 text-muted'></i>
+                        <p class="text-muted small mt-2">Bel_um ada catatan disposisi.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kolom Kanan: Tombol Aksi Dinamis -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 100px;">
+            <div class="card-header bg-light border-0 py-3">
+                <h6 class="fw-bold mb-0">Tindakan Selanjutnya</h6>
+            </div>
+            <div class="card-body d-grid gap-2">
+
+                {% if user.profile.role == 'TU' and surat.status == 'REGISTRASI' %}
+                <button class="btn btn-primary rounded-3 py-2" data-bs-toggle="modal" data-bs-target="#modalDisposisi">
+                    <i class='bx bxs-send me-1'></i> Serahkan ke Pimpinan (C)
+                </button>
+                {% endif %}
+
+                {% if user.profile.role == 'PIM' and surat.status == 'DI_PIMPINAN' %}
+                <button class="btn btn-success rounded-3 py-2" data-bs-toggle="modal" data-bs-target="#modalDisposisi">
+                    <i class='bx bxs-edit-alt me-1'></i> Isi Disposisi Pimpinan
+                </button>
+                {% endif %}
+
+                {% if user.profile.role == 'SEKWAN' and surat.status == 'DI_SEKWAN' %}
+                <button class="btn btn-success rounded-3 py-2" data-bs-toggle="modal" data-bs-target="#modalDisposisi">
+                    <i class='bx bxs-edit-alt me-1'></i> Isi Disposisi Sekwan
+                </button>
+                {% endif %}
+
+                {% if user.profile.role == 'KABAG' and surat.status == 'DI_KABAG' %}
+                <button class="btn btn-warning rounded-3 py-2" data-bs-toggle="modal" data-bs-target="#modalDisposisi">
+                    <i class='bx bxs-check-shield me-1'></i> Validasi & Teruskan ke TU
+                </button>
+                {% endif %}
+
+                {% if user.profile.role == 'TU' and surat.status == 'VALIDASI_TU' %}
+                <button class="btn btn-dark rounded-3 py-2" data-bs-toggle="modal" data-bs-target="#modalDisposisi">
+                    <i class='bx bxs-share me-1'></i> Teruskan ke Komisi (F)
+                </button>
+                {% endif %}
+
+                {% if user.profile.role == 'KOMISI' and surat.status == 'DI_KOMISI' %}
+                <button class="btn btn-info rounded-3 py-2 text-white" data-bs-toggle="modal"
+                    data-bs-target="#modalJadwal">
+                    <i class='bx bxs-calendar-event me-1'></i> Tentukan Jadwal Audiensi
+                </button>
+                {% endif %}
+
+                {% if user.profile.role == 'TU' %}
+                <a href="{% url 'cetak_tanda_terima' surat.uuid %}" target="_blank"
+                    class="btn btn-outline-dark rounded-3">
+                    <i class='bx bx-printer me-1'></i> Cetak Tanda Terima
+                </a>
+                {% endif %}
+
+                <a href="{% url 'daftar_surat' %}" class="btn btn-light rounded-3">Kembali ke Daftar</a>
+            </div>
+            {% if user.profile.role == 'TU' and surat.status == 'DIJADWALKAN' %}
+            <div class="alert alert-warning small rounded-3 mb-2">
+                <i class='bx bxs-info-circle'></i> Segera buat surat resmi untuk jadwal ini.
+            </div>
+            <form action="{% url 'selesaikan_surat' surat.uuid %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success w-100 rounded-3 py-2"
+                    onclick="return confirm('Pastikan surat resmi sudah dibuat dan dikirim ke pemohon?')">
+                    <i class='bx bxs-check-double me-1'></i> Selesaikan & Kirim Undangan
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDisposisi" tabindex="-1" aria-labelledby="modalDisposisiLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary" id="modalDisposisiLabel">
+                    <i class='bx bxs-edit-alt me-2'></i>Form Disposisi Digital
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'proses_disposisi' surat.uuid %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body py-4">
+                    <div class="alert alert-info py-2 rounded-3 small mb-3">
+                        <i class='bx bxs-info-circle me-1'></i>
+                        Status surat saat ini: <strong>{{ surat.get_status_display }}</strong>
+                    </div>
+
+                    {% if user.profile.role == 'TU' and surat.status == 'VALIDASI_TU' %}
+                    <div class="mb-3 p-3 bg-light rounded-3 border">
+                        <label class="form-label fw-bold text-primary small">Pilih Komisi Tujuan:</label>
+                        <select name="tujuan_komisi" class="form-select form-select-sm" required>
+                            <option value="">-- Pilih Komisi --</option>
+                            <option value="I">Komisi I (Pemerintahan)</option>
+                            <option value="II">Komisi II (Perekonomian)</option>
+                            <option value="III">Komisi III (Pembangunan)</option>
+                            <option value="IV">Komisi IV (Kesra)</option>
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="id_catatan" class="form-label fw-semibold text-secondary">Instruksi / Catatan
+                            Pejabat</label>
+                        <textarea name="catatan" id="id_catatan" class="form-control rounded-3" rows="4"
+                            placeholder="Contoh: Segera telaah untuk penentuan jadwal audiensi..." required></textarea>
+                    </div>
+
+                    <div class="text-muted small">
+                        <p class="mb-0 italic">* Dengan menekan tombol kirim, surat akan otomatis diteruskan ke tahap
+                            berikutnya sesuai alur birokrasi.</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4">
+                        <i class='bx bxs-send me-1'></i>Kirim Surat
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalJadwal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-info"><i class='bx bxs-calendar me-2'></i>Atur Jadwal Audiensi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'tentukan_jadwal' surat.uuid %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body py-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tanggal Pelaksanaan</label>
+                        <input type="date" name="tanggal_audiensi" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Waktu / Jam</label>
+                        <input type="time" name="waktu_audiensi" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tempat / Lokasi</label>
+                        <input type="text" name="lokasi_audiensi" class="form-control rounded-3"
+                            value="Gedung DPRD Kabupaten Garut">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-info text-white rounded-3 px-4">Simpan Jadwal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

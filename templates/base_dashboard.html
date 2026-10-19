@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard Audiensi{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Boxicons untuk Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-blue: #0ea5e9;
+            /* Biru Muda */
+            --dark-blue: #0369a1;
+            --bg-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: center;
+        }
+
+        .nav-link {
+            padding: 12px 25px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #f0f9ff;
+            color: var(--primary-blue);
+            border-right: 4px solid var(--primary-blue);
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .top-navbar {
+            background: #ffffff;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-role {
+            background-color: #e0f2fe;
+            color: var(--primary-blue);
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header text-center py-4">
+            <h4 class="fw-bold mb-0 text-primary" style="letter-spacing: 2px;">SIPA</h4>
+            <div class="d-flex flex-column">
+                <span class="text-muted fw-medium" style="font-size: 8px; letter-spacing: 1px; line-height: 1.2;">
+                    SISTEM INFORMASI
+                </span>
+                <span class="text-muted" style="font-size: 8px; letter-spacing: 1px; line-height: 1.2;">
+                    PENERIMAAN AUDIENSI
+                </span>
+            </div>
+        </div>
+        <div class="nav flex-column mt-3">
+            <a href="{% url 'dashboard' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class='bx bxs-dashboard'></i> Dashboard
+            </a>
+
+            <!-- Menu Khusus TU (B) -->
+            {% if user.profile.role == 'TU' %}
+            <a href="{% url 'daftar_surat' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'daftar_surat' %}active{% endif %}"><i
+                    class='bx bxs-envelope'></i> Surat Masuk</a>
+            {% endif %}
+
+            <!-- Menu Khusus Pejabat (C, D, E) -->
+            {% if user.profile.role == 'PIM' or user.profile.role == 'SEKWAN' or user.profile.role == 'KABAG' %}
+            <a href="{% url 'daftar_surat' %}" class="nav-link"><i class='bx bxs-edit-location'></i> Disposisi</a>
+            {% endif %}
+
+            <!-- Menu Khusus Komisi (F) -->
+            {% if user.profile.role == 'KOMISI' %}
+            <a href="{% url 'daftar_surat' %}" class="nav-link"><i class='bx bxs-calendar'></i> Penjadwalan</a>
+            {% endif %}
+
+            <hr class="mx-3 my-2">
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
+                    <i class='bx bxs-log-out'></i> Keluar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-navbar rounded-4 shadow-sm">
+            <h5 class="mb-0 fw-semibold text-secondary">Dashboard Overview</h5>
+
+            <div class="d-flex align-items-center">
+                <div class="dropdown me-3">
+                    <a class="nav-link position-relative p-0" href="#" id="notifDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class='bx bx-bell fs-4 text-secondary'></i>
+                        {% with unread_count=user.notifikasi.filter.is_read.0.count %}
+                        {% if unread_notif_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ unread_notif_count }}
+                        </span>
+                        {% endif %}
+                        {% endwith %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-3"
+                        style="width: 300px; z-index: 1050;">
+                        <li class="px-3 py-2 border-bottom">
+                            <h6 class="mb-0 fw-bold">Notifikasi</h6>
+                        </li>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            {% for n in user.notifikasi.all|slice:":5" %}
+                            <li>
+                                <a class="dropdown-item py-3 border-bottom {% if not n.is_read %}bg-light{% endif %}"
+                                    href="{{ n.link }}">
+                                    <p class="mb-1 small fw-semibold text-wrap">{{ n.pesan }}</p>
+                                    <small class="text-muted extra-small">{{ n.created_at|timesince }} yang lalu</small>
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li class="px-3 py-4 text-center text-muted">
+                                <small>Tidak ada notifikasi baru.</small>
+                            </li>
+                            {% endfor %}
+                        </div>
+                        <li><a class="dropdown-item text-center small text-primary fw-bold" href="#">Lihat Semua</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="vr me-3 opacity-25" style="height: 30px;"></div>
+
+                <div class="user-profile">
+                    <div class="text-end me-2">
+                        <p class="mb-0 fw-bold small text-dark">{{ user.get_full_name|default:user.username }}</p>
+                        <span class="badge-role text-uppercase">{{ user.profile.get_role_display }}</span>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=0ea5e9&color=fff"
+                        class="rounded-circle" width="40">
+                </div>
+            </div>
+        </div>
+
+        <!-- Block Content -->
+        <div class="container-fluid">
+            {% block content %}
+            <!-- Isi Halaman Per Menu Di Sini -->
+            {% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
